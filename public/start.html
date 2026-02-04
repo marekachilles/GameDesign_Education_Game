@@ -1,0 +1,204 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Game Design Learning</title>
+        <link rel="stylesheet" href="../style.css" />
+        <style>
+            html,
+            body {
+                background-color: transparent !important;
+                background: transparent !important;
+            }
+        </style>
+    </head>
+
+    <script src="/js/wissensspeicher-panel.js"></script>
+    <script>
+        let wissensspeicherPanel;
+
+        document.addEventListener('DOMContentLoaded', () => {
+            // Initialize panel manager
+            wissensspeicherPanel = new WissensspeicherPanel();
+
+            const levelSelectBtn = document.getElementById('level-select-btn');
+            if (levelSelectBtn && !isAllKnowledgeUnlocked()) {
+                levelSelectBtn.setAttribute('disabled', 'true');
+                levelSelectBtn.classList.add('opacity-60', 'cursor-not-allowed');
+            }
+        });
+
+        function isAllKnowledgeUnlocked() {
+            const currentLevel = parseInt(localStorage.getItem('level') || '0', 10);
+            return currentLevel >= 3;
+        }
+
+        function startGame() {
+            const lastScene = localStorage.getItem('last_level_scene');
+            let targetScene = 'Level1Part1';
+
+            if (lastScene) {
+                if (lastScene.startsWith('Level1')) {
+                    targetScene = 'Level1Part1';
+                } else if (lastScene === 'WhatIsAGameScene') {
+                    targetScene = 'WhatIsAGameScene';
+                } else if (lastScene === 'Level3RivalHoopsScene') {
+                    targetScene = 'Level3RivalHoopsScene';
+                }
+            }
+
+            startLevel(targetScene);
+        }
+
+        function startLevel(sceneKey) {
+            clearSceneSave(sceneKey);
+            resetSceneRegistry(sceneKey);
+            window.parent.window.game.scene.start(sceneKey, { forceFresh: true });
+            window.parent.window.game.scene.stop('StartScene');
+        }
+
+        function clearSceneSave(sceneKey) {
+            return;
+        }
+
+        function resetSceneRegistry(sceneKey) {
+            const registry = window.parent?.window?.game?.registry;
+            if (!registry) return;
+
+            if (sceneKey === 'Level3RivalHoopsScene') {
+                registry.set('level3_multiplayer', false);
+                registry.set('level3_winner', null);
+            }
+        }
+
+        function openLevelSelection() {
+            if (!isAllKnowledgeUnlocked()) return;
+            const menu = document.getElementById('main-menu');
+            const selection = document.getElementById('level-selection');
+            if (menu) menu.classList.add('hidden');
+            if (selection) selection.classList.remove('hidden');
+        }
+
+        function backToMainMenu() {
+            const menu = document.getElementById('main-menu');
+            const selection = document.getElementById('level-selection');
+            if (selection) selection.classList.add('hidden');
+            if (menu) menu.classList.remove('hidden');
+        }
+
+        function resetProgress() {
+            localStorage.removeItem('game_save_state');
+            localStorage.removeItem('level');
+            localStorage.removeItem('gd_wissensspeicher_entries');
+
+            Object.keys(localStorage)
+                .filter((key) => key.startsWith('answers_'))
+                .forEach((key) => localStorage.removeItem(key));
+
+            if (window.parent?.window?.game) {
+                window.parent.window.game.scene.start('StartScene');
+            }
+            window.location.reload();
+        }
+    </script>
+
+    <body class="m-0 p-0 overflow-hidden bg-transparent flex justify-center items-center h-screen w-screen">
+        <!--from-[#0e7535] to-[#07261a]-->
+        <div
+            id="start-screen"
+            class="absolute inset-0 bg-transparent text-white font-mono flex justify-between p-10 z-[1000]"
+        >
+            <div class="left-column mx-[5%] mt-[15vh] flex flex-col items-center w-full">
+                <h1 class="title text-[80px] leading-[1.1] mb-2.5 font-normal text-white">Game Design Lernen</h1>
+                <h2 class="subtitle text-[32px] text-white opacity-80 mb-40 font-normal">
+                    Erfahre spielerisch die Grundlegende Konzepte von Game Design
+                </h2>
+
+                <div id="main-menu" class="flex justify-center w-full">
+                    <div class="button-group flex justify-center flex-col gap-[30px] w-96">
+                        <button
+                            id="btn-play"
+                            onclick="startGame()"
+                            class="btn h-22 btn-primary p-4 border-b-2 border-white hover:bg-white/10 text-[28px] font-mono bg-transparent text-white cursor-pointer transition-all duration-200"
+                        >
+                            Spielen
+                        </button>
+                        <button
+                            onclick="wissensspeicherPanel.open()"
+                            class="info-item h-22 knowledge-base flex items-center justify-center gap-[15px] p-4 border-b-2 border-white hover:bg-white/10 cursor-pointer"
+                        >
+                            <span class="label text-[24px] text-[#ffffff] cursor-pointer">Wissensspeicher</span>
+                            <div class="icon-plain text-white flex items-center">
+                                <svg
+                                    xmlns="http://www.w3.org/2000/svg"
+                                    width="48"
+                                    height="48"
+                                    viewBox="0 0 24 24"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    stroke-width="2"
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                >
+                                    <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
+                                    <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>
+                                </svg>
+                            </div>
+                        </button>
+                        <button
+                            id="level-select-btn"
+                            onclick="openLevelSelection()"
+                            class="btn h-22 btn-primary p-4 border-b-2 border-white hover:bg-white/10 text-[28px] font-mono bg-transparent text-white cursor-pointer transition-all duration-200"
+                        >
+                            Levelauswahl
+                        </button>
+                        <div class="text-[18px] text-white/70 text-center">
+                            Levelauswahl wird nach Abschluss freigeschaltet.
+                        </div>
+                    </div>
+                </div>
+
+                <div id="level-selection" class="hidden w-full">
+                    <div class="flex flex-col gap-[16px] w-96 mx-auto">
+                        <h3 class="text-[28px] text-white mb-2 text-center">Levelauswahl</h3>
+                        <button
+                            onclick="startLevel('Level1Part1')"
+                            class="btn h-18 btn-primary p-3 border-b-2 border-white hover:bg-white/10 text-[22px] font-mono bg-transparent text-white cursor-pointer transition-all duration-200"
+                        >
+                            Level 1: Agency
+                        </button>
+                        <button
+                            onclick="startLevel('WhatIsAGameScene')"
+                            class="btn h-18 btn-primary p-3 border-b-2 border-white hover:bg-white/10 text-[22px] font-mono bg-transparent text-white cursor-pointer transition-all duration-200"
+                        >
+                            Level 2: Was ist ein Spiel?
+                        </button>
+                        <button
+                            onclick="startLevel('Level3RivalHoopsScene')"
+                            class="btn h-18 btn-primary p-3 border-b-2 border-white hover:bg-white/10 text-[22px] font-mono bg-transparent text-white cursor-pointer transition-all duration-200"
+                        >
+                            Level 3: Rival Hoops
+                        </button>
+                        <button
+                            onclick="backToMainMenu()"
+                            class="btn h-16 btn-primary p-2.5 border-b-2 border-white hover:bg-white/10 text-[20px] font-mono bg-transparent text-white cursor-pointer transition-all duration-200"
+                        >
+                            Zurück zum Hauptmenü
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="right-column mt-[15vh] flex flex-col items-end gap-[40px]"></div>
+
+            <button
+                onclick="resetProgress()"
+                class="btn h-14 btn-primary px-4 border-b-2 border-white hover:bg-white/10 text-[18px] font-mono bg-transparent text-white cursor-pointer transition-all duration-200 absolute left-6 bottom-6"
+            >
+                Neustart
+            </button>
+        </div>
+    </body>
+</html>

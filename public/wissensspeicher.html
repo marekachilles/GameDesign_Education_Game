@@ -1,0 +1,185 @@
+<!doctype html>
+<html lang="de">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Wissensspeicher</title>
+        <link href="./style.css" rel="stylesheet">
+        <style>
+            .level-badge {
+            display: inline-block;
+            background: #2c3e50;
+            color: white;
+            font-size: 12px;
+            padding: 2px 8px;
+            border-radius: 10px;
+            vertical-align: middle;
+            }
+
+            .locked {
+            opacity: 0.5;
+            position: relative;
+            }
+
+            .locked::after {
+            content: "🔒 Level " attr(requiredLvl) " erforderlich";
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 10px 15px;
+            border-radius: 5px;
+            font-size: 14px;
+            white-space: nowrap;
+            opacity: 0;
+            transition: opacity 0.3s;
+            z-index: 10;
+            }
+
+            .locked:hover::after {
+            opacity: 1;
+            }
+        </style>
+    </head>
+
+    <body class="font-sans flex flex-col !justify-start !h-screen bg-gradient-to-br from-[#8467c8] to-[#4c3e70]">
+        <div class="!p-6 !overflow-y-auto">
+            <div class="flex justify-between items-center w-full mb-2 px-2.5">
+                <h1 class="text-4xl w-full text-white font-bold">Wissensspeicher <span id="current-level" class="level-badge">Level: 0</span></h1></h1>
+                <button
+                    class="bg-transparent border-none text-[32px] text-white/50 hover:text-white cursor-pointer p-0 w-10 h-10 flex items-center justify-center transition-colors hover:text-[#2c3e50]"
+                    onclick="window.parent.postMessage('closePanel', '*')"
+                >
+                    ×
+                </button>
+            </div>
+
+            <div id="content-container"></div>
+
+            <div class="mt-8 p-4 bg-white/10 rounded-lg text-md text-white/80 italic">
+                Schließe weitere Level ab um neues Wissen freizuschalten.
+            </div>
+        </div>
+
+        <script>
+            document.addEventListener('DOMContentLoaded', () => {
+                fetch('src/assets/data/wissensspeicher.json')
+                    .then((response) => response.json())
+                    .then((data) => renderContent(data))
+                    .catch((error) => console.error('Error loading content:', error));
+            });
+
+            function checkLevel(){
+                const level = localStorage.getItem('level');
+                return parseInt(level) || 0; 
+            }
+
+            function renderContent(data) {
+                const container = document.getElementById('content-container');
+                const currentLevel = checkLevel();
+
+                const levelBadge = document.getElementById('current-level');
+                if (levelBadge) {
+                    levelBadge.textContent = `Level: ${currentLevel}`;
+                }
+
+                data.forEach((item, index) => {
+                    
+                    const section = document.createElement('div');
+                    section.className = 'bg-black/10 rounded-lg mb-2.5 overflow-hidden transition-all duration-300';
+
+                    const header = document.createElement('div');
+                    header.className = 'p-4 cursor-pointer flex justify-between items-center select-none transition-colors hover:bg-white/20 group';
+                    
+                    const content = document.createElement('div');
+                    
+                    if (parseInt(item.levelRequired) <= currentLevel) {
+
+                        header.onclick = () => toggleSection(header);
+                        header.innerHTML = `
+                            <span class="text-[length:var(--ws-text-lg)] text-white font-semibold"> ${index + 1}. ${item.title}</span>
+                            <span class="text-[20px] text-white transition-transform duration-300 toggle-icon">▼</span>
+                        `;
+    
+                        content.className = 'section-content max-h-0 overflow-hidden transition-[max-height] duration-300 ease-out px-4';
+    
+                        const description = document.createElement('p');
+                        description.className = 'text-[length:var(--ws-text-base)] text-white p-4 leading-relaxed rounded-md my-4 mb-8';
+                        description.innerText = item.description;
+                        content.appendChild(description);
+    
+                        if (item.subsections) {
+                            item.subsections.forEach((sub) => {
+                                const subDiv = document.createElement('div');
+                                subDiv.className = 'subsection mb-4';
+    
+                                let subContentHTML = '';
+                                if (sub.contentColor) {
+                                    subContentHTML += `<div class="h-[120px] rounded-lg mb-4" style="background: ${sub.contentColor};"></div>`;
+                                }
+                                subContentHTML += `<p class="text-[length:var(--ws-text-sm)] text-white leading-relaxed my-2.5">${sub.content}</p>`;
+    
+                                subDiv.innerHTML = `
+                                    <div class="flex items-center gap-2.5 mb-1.5     p-2.5  rounded-lg transition-colors hover:bg-white/15 cursor-pointer subsection-header" onclick="toggleSubsection(this)">
+                                        <span class="text-[length:var(--ws-text-base)] text-white font-bold">${sub.title}</span>
+                                        <span class="text-[14px] text-white transition-transform duration-300 ml-auto toggle-icon">▼</span>
+                                    </div>
+                                    <div class="subsection-content max-h-0 overflow-hidden transition-[max-height] duration-300 ease-out px-2.5">
+                                        ${subContentHTML}
+                                    </div>`;
+    
+                                content.appendChild(subDiv);
+                            });
+                        }
+                    } else {
+                        section.setAttribute('requiredLvl', `${item.levelRequired}`);
+                        section.className = 'bg-black/10 rounded-lg mb-2.5 overflow-hidden transition-all duration-300 opacity-50 locked';
+    
+                        header.className = 'p-4 cursor-pointer flex justify-center items-center select-none transition-colors hover:bg-white/20 group';
+                        header.innerHTML = `<span class="text-[length:var(--ws-text-lg)] text-white font-semibold"> ? </span>`;
+                    }
+
+                    section.appendChild(header);
+                    section.appendChild(content);
+                    container.appendChild(section);
+                });
+            }
+
+            function toggleSection(header) {
+                const section = header.parentElement;
+                const content = section.querySelector('.section-content');
+                const icon = header.querySelector('.toggle-icon');
+
+                // Toggle logic
+                if (content.classList.contains('open')) {
+                    content.classList.remove('open', 'pb-4');
+                    content.classList.add('max-h-0');
+                    if (icon) icon.style.transform = 'rotate(0deg)';
+                } else {
+                    content.classList.add('open', 'pb-4');
+                    content.classList.remove('max-h-0');
+                    if (icon) icon.style.transform = 'rotate(180deg)';
+                }
+            }
+
+            function toggleSubsection(header) {
+                const subsection = header.parentElement;
+                const content = subsection.querySelector('.subsection-content');
+                const icon = header.querySelector('.toggle-icon');
+
+                // Toggle logic
+                if (content.classList.contains('open')) {
+                    content.classList.remove('open', 'py-2.5');
+                    content.classList.add('max-h-0');
+                    if (icon) icon.style.transform = 'rotate(0deg)';
+                } else {
+                    content.classList.add('open', 'py-2.5');
+                    content.classList.remove('max-h-0');
+                    if (icon) icon.style.transform = 'rotate(180deg)';
+                }
+            }
+        </script>
+    </body>
+</html>

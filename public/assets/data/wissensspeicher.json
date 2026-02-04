@@ -1,0 +1,44 @@
+[
+  {
+    "id": "level1",
+    "title": "Level 1: Agency",
+    "description": "Grundlagen zur Spieler-Agency und dem Einfluss von Entscheidungen.",
+    "locked": true,
+    "subsections": []
+  },
+  {
+    "id": "level2",
+    "title": "Level 2: Was ist ein Spiel?",
+    "description": "Grundbegriffe zu Regeln, Zielen und Interaktion.",
+    "locked": true,
+    "subsections": []
+  },
+  {
+    "id": "level3",
+    "title": "Level 3: Rival Hoops",
+    "description": "NPC‑Gegner erhöhen Spannung und erfordern Balancing zwischen Herausforderung und Erfolg.",
+    "locked": true,
+    "subsections": [
+      {
+        "title": "NPC‑Gegner",
+        "content": "NPCs sorgen für Konkurrenz und Interaktion, indem sie dem Spieler aktiv entgegenwirken. In Rival Hoops bedeutet das: Der Gegner versucht den Ball zu stehlen, sich günstig zu positionieren und selbst zu punkten. Dadurch entsteht Druck und das Spiel fühlt sich lebendiger an als ein rein statisches Ziel." 
+      },
+      {
+        "title": "Frust vs. Erfolg",
+        "content": "Spielspaß entsteht, wenn Herausforderung und Erfolg im Gleichgewicht sind. Ist der NPC zu schwach, fühlt sich ein Treffer bedeutungslos an; ist er zu stark, entsteht Frust. Gute Balance erzeugt das Gefühl: ‚Knapp, aber machbar‘ – und motiviert zu einem weiteren Versuch." 
+      },
+      {
+        "title": "Schwierigkeits‑Parameter",
+        "content": "Werte wie Geschwindigkeit, Sprungchance, Wurfkraft, Ziel-Fehler oder Abklingzeiten steuern das Verhalten des NPCs. Kleine Anpassungen wirken sich stark auf die Fairness aus. Ein hoher Ziel‑Fehler macht den NPC menschlicher, während kurze Abklingzeiten ihn aggressiver wirken lassen." 
+      },
+      {
+        "title": "Balancing in Rival Hoops",
+        "content": "Balancing bedeutet, die Regeln und Parameter so einzustellen, dass beide Seiten echte Chancen haben. Beispiele: Der NPC sollte nicht jede Aktion perfekt ausführen, sondern mit Streuung (Fehler) arbeiten. Der Spieler braucht klare Feedbacks (z. B. sichtbare Wurfkraft), damit er seine Leistung verbessern kann." 
+      },
+      {
+        "title": "Schwierigkeit als Lernwerkzeug",
+        "content": "Die Möglichkeit, die NPC‑Werte selbst einzustellen, zeigt, wie stark Game‑Design‑Entscheidungen die Spielerfahrung beeinflussen. Schon kleine Änderungen an Geschwindigkeit oder Sprungchance verändern das Spielgefühl deutlich – genau darum ist Balancing so wichtig." 
+      }
+    ]
+  }
+]

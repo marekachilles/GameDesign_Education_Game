@@ -1,0 +1,61 @@
+@import 'tailwindcss';
+
+@theme {
+    --animate-slideIn: slideIn 0.3s ease-out;
+    --animate-slideOut: slideOut 0.3s ease-in;
+
+    @keyframes slideIn {
+        from {
+            transform: translateX(100%);
+        }
+
+        to {
+            transform: translateX(0);
+        }
+    }
+
+    @keyframes slideOut {
+        from {
+            transform: translateX(0);
+        }
+
+        to {
+            transform: translateX(100%);
+        }
+    }
+}
+
+:root {
+    /* Text Sizes for Wissensspeicher */
+    --ws-text-base: 16px;
+    --ws-text-lg: 18px;
+    --ws-text-xl: 28px;
+    --ws-text-sm: 14px;
+    --ws-text-xs: 12px;
+}
+
+body {
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+    background-color: #000;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    width: 100vw;
+}
+
+#app {
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    & > div {
+        transform-origin: initial !important;
+    }
+}
